@@ -544,32 +544,36 @@
                     <span>点赞</span>
                     <span class="stats-count">4.7k</span>
                 </div>
+                <div class="interaction-btn" onclick="downloadModel()">
+                    <span>📥</span>
+                    <span>下载模型</span>
+                </div>
             </div>
         </div>
 
         <!-- 关键词卡片 -->
         <div class="card">
             <div class="keywords">
-                <span class="badge">舞台</span>
-                <span class="badge">KanyeWest</span>
-                <span class="badge">表演</span>
-                <span class="badge">自信</span>
-                <span class="badge">观众</span>
-                <span class="badge">偶像合作</span>
+                <span class="badge">电梯</span>
+                <span class="badge">海浪</span>
+                <span class="badge">未知空间</span>
+                <span class="badge">恐惧</span>
+                <span class="badge">突破</span>
+                <span class="badge">世界入口</span>
             </div>
         </div>
 
         <!-- 梦境描述卡片 -->
         <div class="card">
             <strong>梦境描述</strong>
-            <p class="description">这个梦太离谱了，但是我到现在都记得非常清楚。梦里我站在一个巨大的舞台上，聚光灯打得我眼睛都有些睁不开。旁边是 Kanye，他正对着话筒调整节奏，而我居然负责和他一起合唱。观众在台下跳着、喊着，我甚至能感觉到地板跟着人群的节奏震动。我记得 Kanye 看了我一眼，点了点头，像是在对我说："放开点。"然后我们一起开始表演，我第一次感到那种"被全世界看到"的感觉。醒过来之后，我愣了很久。</p>
+            <p class="description">我做了一个很奇怪的梦。我走进一部电梯，本来只是想去楼下，但门一关上，整个空间突然变得异常安静。下一秒，电梯门缓缓打开，一道巨大的蓝色海浪正冲着我卷上来，像是某种"活"的东西，带着光、带着脉动，像是在呼吸。它没有真正拍到我，但我能感觉到一股力量在把我往前拉，好像它想让我进去。我记得自己站在门口不敢动，既害怕又莫名兴奋，就像站在一个全新的世界入口前。</p>
         </div>
 
         <!-- 梦境解析卡片 -->
         <div class="card">
             <strong>梦境解析</strong>
             <div class="analysis">
-                这是一个典型的自我价值升高、渴望被看见的梦。舞台象征"公开的自我展示"、"自我实现"。Kanye 作为梦中的合作对象，代表力量、影响力与创造性。在人群注视下表演，说明你近期正在突破自己的舒适区，或期待在某个领域被认可。Kanye 点头的细节象征你对"外部肯定"的强烈需求，也反映出你内在潜在的自信正被唤醒。这个梦在鼓励你：你其实已经准备好走向更大的舞台了。
+                这个梦象征着转变、压力与潜意识的召唤。电梯通常代表"状态改变"或"内在位置的移动"。海浪象征情绪、潜意识以及无法控制的外部力量。海浪向你"靠近但未淹没"，意味着你正在面对某种巨大的变化，但仍处在可以掌控的边缘。这种既害怕又兴奋的感觉，反映了你对未知领域的期待 —— 很可能与你近期的项目、未来规划或人生选择有关。梦正在推动你向前，让你跨入一个新的阶段。
             </div>
         </div>
 
@@ -588,6 +592,10 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 2000);
+        }
+
+        function downloadModel() {
+            showToast('📥 模型文件获取方式：\n1. 联系作者获取完整 .usdz 文件\n2. 或通过云盘链接下载\n3. 支持AR查看的完整3D模型');
         }
     </script>
 
@@ -687,53 +695,93 @@
         const objLoader = new OBJLoader(loadingManager);
         console.log('开始加载模型...');
 
-        // 优化模型加载
-        fetch('电梯.usdz')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                console.log('文件存在，开始加载模型');
+        // 由于模型文件过大，显示3D舞台演示
+        console.log('模型文件过大，显示舞台演示立方体');
 
-                // 添加响应缓存
-                const modelCache = localStorage.getItem('elevatorModelCache');
-                if (modelCache) {
-                    console.log('使用缓存的模型数据');
-                    const object = objLoader.parse(modelCache);
-                    setupModel(object);
-                    return;
-                }
+        // 创建舞台地板
+        const stageGeometry = new THREE.BoxGeometry(8, 0.2, 6);
+        const stageMaterial = new THREE.MeshStandardMaterial({
+            color: 0x8b4513,
+            metalness: 0.3,
+            roughness: 0.8
+        });
+        const stage = new THREE.Mesh(stageGeometry, stageMaterial);
+        stage.position.y = -1;
+        scene.add(stage);
 
-                objLoader.load('电梯.usdz',
-                    function (object) {
-                        console.log('模型加载成功！');
+        // 创建两个表演者立方体
+        const performerGeometry = new THREE.BoxGeometry(1, 2, 1);
 
-                        // 缓存模型数据
-                        try {
-                            localStorage.setItem('elevatorModelCache', JSON.stringify(object.toJSON()));
-                        } catch (e) {
-                            console.warn('模型缓存失败:', e);
-                        }
+        // Kanye (红色)
+        const kanyeMaterial = new THREE.MeshStandardMaterial({
+            color: 0xff0000,
+            metalness: 0.4,
+            roughness: 0.3
+        });
+        const kanyeCube = new THREE.Mesh(performerGeometry, kanyeMaterial);
+        kanyeCube.position.set(-2, 0, 0);
+        scene.add(kanyeCube);
 
-                        setupModel(object);
-                    },
-                    function (xhr) {
-                        const percent = (xhr.loaded / xhr.total * 100).toFixed(0);
-                        if (progressElement) {
-                            progressElement.textContent = `${percent}%`;
-                        }
-                        console.log(percent + '% 已加载');
-                    },
-                    function (error) {
-                        console.error('加载错误：', error);
-                        alert('❌ 模型加载失败：' + error.message);
-                    }
-                );
-            })
-            .catch(error => {
-                console.error('文件检查失败：', error);
-                alert('❌ 无法找到模型文件，请确保"电梯.usdz"文件在正确的位置');
-            });
+        // 用户 (蓝色)
+        const userMaterial = new THREE.MeshStandardMaterial({
+            color: 0x00ccff,
+            metalness: 0.4,
+            roughness: 0.3
+        });
+        const userCube = new THREE.Mesh(performerGeometry, userMaterial);
+        userCube.position.set(2, 0, 0);
+        scene.add(userCube);
+
+        // 添加聚光灯效果
+        const spotLight = new THREE.SpotLight(0xffffff, 2);
+        spotLight.position.set(0, 5, 3);
+        spotLight.angle = Math.PI / 6;
+        spotLight.penumbra = 0.2;
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // 移除测试立方体
+        scene.remove(testCube);
+
+        // 设置相机位置
+        camera.position.set(8, 4, 8);
+        controls.target.set(0, 0, 0);
+        controls.update();
+
+        // 添加表演动画
+        function animatePerformance() {
+            const time = Date.now() * 0.001;
+
+            // Kanye 动作
+            kanyeCube.position.y = Math.abs(Math.sin(time * 2)) * 0.5;
+            kanyeCube.rotation.y = time * 0.5;
+
+            // 用户动作
+            userCube.position.y = Math.abs(Math.cos(time * 2)) * 0.3;
+            userCube.rotation.y = -time * 0.3;
+        }
+
+        // 在动画循环中调用
+        function animate() {
+            frameId = requestAnimationFrame(animate);
+
+            animatePerformance();
+
+            if (controls.enabled && controls.update) {
+                controls.update();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // 隐藏加载界面
+        setTimeout(() => {
+            loading.style.display = 'none';
+            document.body.style.cursor = 'default';
+
+            // 显示模型下载提示
+            showToast('📥 模型文件过大，请点击下载按钮获取完整模型');
+        }, 1000);
 
         // 模型设置函数
         function setupModel(object) {
